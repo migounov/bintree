@@ -3,9 +3,9 @@ package bintree
 import "errors"
 
 type node struct {
-	key int
+	key         int
 	left, right *node
-	data interface{}
+	data        interface{}
 }
 
 type Updater func(data interface{}) (interface{}, error)
@@ -13,8 +13,8 @@ type Updater func(data interface{}) (interface{}, error)
 func (t *node) Insert(key int, data interface{}) (*node, error) {
 	var err error
 	if t == nil {
-        return &node{key, nil, nil, data}, nil
-    }
+		return &node{key, nil, nil, data}, nil
+	}
 	if key == t.key {
 		return t, errors.New("duplicate key")
 	}
@@ -54,7 +54,7 @@ func (t *node) traverse(fn func(t *node)) {
 	}
 }
 
-func (t *node) list() []int{
+func (t *node) list() []int {
 	var keys []int
 	fn := func(t *node) {
 		keys = append(keys, t.key)
