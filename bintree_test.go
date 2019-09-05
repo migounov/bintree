@@ -29,12 +29,12 @@ func createTree(s []int) (*node, []int) {
 	var tr *node
 	var user UserData
 
-	for i := 0; i < len(s); i++ {
-		user.name = "User " + strconv.Itoa(s[i])
-		user.email = "user" + strconv.Itoa(s[i]) + "@semrush.com"
-		tr, err = tr.Insert(s[i], user)
+	for _, v := range s {
+		user.name = "User " + strconv.Itoa(v)
+		user.email = "user" + strconv.Itoa(v) + "@bintree.com"
+		tr, err = tr.Insert(v, user)
 		if err == nil {
-			keys = append(keys, s[i])
+			keys = append(keys, v)
 		}
 	}
 	return tr, keys
@@ -58,7 +58,7 @@ func MinMax(s []int) (int, int, error) {
 }
 
 func TestInsert(t *testing.T) {
-	s := generateSlice(100)
+	s := generateSlice(10)
 	tr, exp := createTree(s)
 	sort.Ints(exp)
 	act := tr.List()
@@ -227,7 +227,7 @@ func TestDeleteLeftNodeWithTwoChildren(t *testing.T) {
 }
 
 func TestMinMax(t *testing.T) {
-	s := generateSlice(100)
+	s := generateSlice(10)
 	tr, exp := createTree(s)
 	minAct := tr.Min()
 	maxAct := tr.Max()

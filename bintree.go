@@ -6,9 +6,67 @@ type node struct {
 	key         int
 	left, right *node
 	data        interface{}
+	height		int
 }
 
 type Updater func(data interface{}) (interface{}, error)
+
+func (t *node) getHeight() int {
+	if t == nil {
+		return 0
+	} else {
+		return t.height
+	}
+}
+
+func (t *node) calcHeight() *node {
+	hl := t.left.getHeight()
+	hr := t.right.getHeight()
+	if hl > hr {
+		t.height = hl + 1
+	} else {
+		t.height = hr + 1
+	}
+	return t
+}
+
+func (t *node) getBalanceFactor() int {
+	return t.right.getHeight() - t.left.getHeight()
+}
+
+func (t *node) balance() *node {
+	t.calcHeight()
+	if t.getBalanceFactor() == 2 {
+		if t.right.getBalanceFactor() < 0 {
+			t.right = t.right.rotateRight()
+		}
+		return t.rotateLeft()
+	} else if t.getBalanceFactor() == -2 {
+		if t.left.getBalanceFactor() > 0 {
+			t.left = t.left.rotateLeft()
+		}
+		return t.rotateRight()
+	}
+	return t
+}
+
+func (t *node) rotateLeft() *node {
+	z := t.right
+	t.right = z.left
+	z.left = t
+	t.calcHeight()
+	z.calcHeight()
+	return z
+}
+
+func (t *node) rotateRight() *node {
+	z := t.left
+	t.left = z.right
+	z.right = t
+	t.calcHeight()
+	z.calcHeight()
+	return z
+}
 
 func (t *node) search(key int) (*node, *node) {
 	var parent *node
@@ -40,17 +98,16 @@ func relinkParent(n *node, parent *node, newChild *node) *node {
 func (t *node) Insert(key int, data interface{}) (*node, error) {
 	var err error
 	if t == nil {
-		return &node{key, nil, nil, data}, nil
+		return &node{key, nil, nil, data, 0}, nil
 	}
 	if key == t.key {
 		return t, errors.New("duplicate key")
-	}
-	if key < t.key {
+	} else if key < t.key {
 		t.left, err = t.left.Insert(key, data)
-		return t, err
+	} else if key > t.key {
+		t.right, err = t.right.Insert(key, data)
 	}
-	t.right, err = t.right.Insert(key, data)
-	return t, err
+	return t.balance(), err
 }
 
 func (t *node) Get(key int) (interface{}, error) {
@@ -89,13 +146,13 @@ func (t *node) Delete(key int) (*node, error) {
 	case n.left != nil && n.right != nil:
 		switch {
 		case n.key > parent.key:
-			r, p := n.left.findMax()
+			r, p := n.findMax(n.left)
 			relinkParent(r, p, r.left)
 			r.left = n.left
 			r.right = n.right
 			relinkParent(n, parent, r)
 		case n.key < parent.key:
-			r, p := n.right.findMin()
+			r, p := n.findMin(n.right)
 			relinkParent(r, p, r.right)
 			r.left = n.left
 			r.right = n.right
@@ -109,37 +166,33 @@ func (t *node) Delete(key int) (*node, error) {
 	return t, nil
 }
 
-func (t *node) findMin() (*node, *node) {
-	var parent *node
-	for n := t; n != nil; {
-		if n.left == nil {
-			return n, parent
-		}
+func (t *node) findMin(s *node) (*node, *node) {
+	var n *node
+	parent := t
+	for n = s; n != nil && n.left != nil; {
 		parent = n
 		n = n.left
 	}
-	return nil, nil
+	return n, parent
 }
 
 func (t *node) Min() int {
-	min, _ := t.findMin()
+	min, _ := t.findMin(t.left)
 	return min.key
 }
 
-func (t *node) findMax() (*node, *node) {
-	var parent *node
-	for n := t; n != nil; {
-		if n.right == nil {
-			return n, parent
-		}
+func (t *node) findMax(s *node) (*node, *node) {
+	var n *node
+	parent := t
+	for n = t; n != nil && n.right != nil; {
 		parent = n
 		n = n.right
 	}
-	return nil, nil
+	return n, parent
 }
 
 func (t *node) Max() int {
-	max, _ := t.findMax()
+	max, _ := t.findMax(t.right)
 	return max.key
 }
 
