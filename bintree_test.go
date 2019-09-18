@@ -3,6 +3,7 @@ package bintree
 import (
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"reflect"
 	"sort"
@@ -19,6 +20,16 @@ func generateSlice(n int) []int {
 	s := make([]int, 0, n)
 	for i := 0; i < n; i++ {
 		s = append(s, rand.Intn(100))
+	}
+	return s
+}
+
+func removeFromSlice(s []int, value int) []int {
+	for i, v := range s {
+		if v == value {
+			s[i] = s[len(s)-1]
+			s = s[:len(s)-1]
+		}
 	}
 	return s
 }
@@ -66,6 +77,10 @@ func TestInsert(t *testing.T) {
 		fmt.Printf("Tree elements:       %v\n", act)
 		fmt.Printf("Original elements:   %v\n", exp)
 		t.Errorf("Tree insert is messed up")
+	}
+	bf := tr.ListBalanceFactors()
+	if min, max, _ := MinMax(bf); min <= -2 || max >= 2 {
+		t.Errorf("Tree is not balanced")
 	}
 }
 
@@ -123,16 +138,30 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
-func TestDeleteRoot(t *testing.T) {
-	s := generateSlice(1)
-	tr, exp := createTree(s)
-	key := exp[rand.Intn(len(exp))]
-	tr, err := tr.Delete(key)
+func TestDeleteLoneRoot(t *testing.T) {
+	s := []int{1}
+	tr, _ := createTree(s)
+	tr, err := tr.Delete(1)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
 	if tr != nil {
 		t.Errorf("The tree is not empty")
+	}
+}
+
+func TestDeleteRoot(t *testing.T) {
+	s := []int{2, 1, 3}
+	tr, _ := createTree(s)
+	tr, err := tr.Delete(2)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	exp := []int{1, 3}
+	act := tr.List()
+	if !reflect.DeepEqual(act, exp) {
+		fmt.Printf("Left elements: %v, expected: %v\n", act, exp)
+		t.Errorf("Error deleting leaf")
 	}
 }
 
@@ -197,13 +226,13 @@ func TestDeleteLeftNodeWithOneChild(t *testing.T) {
 }
 
 func TestDeleteRightNodeWithTwoChildren(t *testing.T) {
-	s := []int{2, 1, 5, 3, 6, 4}
+	s := []int{3, 2, 7, 1, 8, 5, 6, 4}
 	tr, _ := createTree(s)
-	tr, err := tr.Delete(5)
+	tr, err := tr.Delete(7)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	exp := []int{1, 2, 3, 4, 6}
+	exp := []int{1, 2, 3, 4, 5, 6, 8}
 	act := tr.List()
 	if !reflect.DeepEqual(act, exp) {
 		fmt.Printf("Left elements: %v, expected: %v\n", act, exp)
@@ -212,17 +241,39 @@ func TestDeleteRightNodeWithTwoChildren(t *testing.T) {
 }
 
 func TestDeleteLeftNodeWithTwoChildren(t *testing.T) {
-	s := []int{5, 2, 1, 4, 3, 6}
+	s := []int{6, 7, 4, 8, 5, 2, 1, 3}
 	tr, _ := createTree(s)
-	tr, err := tr.Delete(2)
+	tr, err := tr.Delete(4)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
-	exp := []int{1, 3, 4, 5, 6}
+	exp := []int{1, 2, 3, 5, 6, 7, 8}
 	act := tr.List()
 	if !reflect.DeepEqual(act, exp) {
 		fmt.Printf("Left elements: %v, expected: %v\n", act, exp)
 		t.Errorf("Error deleting node")
+	}
+}
+
+func TestDeleteRandomNode(t *testing.T) {
+	s := generateSlice(1000)
+	tr, exp := createTree(s)
+	key := exp[rand.Intn(len(exp))]
+	exp = removeFromSlice(exp, key)
+	sort.Ints(exp)
+	tr, err := tr.Delete(key)
+	if err != nil {
+		log.Fatal(err)
+	}
+	act := tr.List()
+	if !reflect.DeepEqual(act, exp) {
+		fmt.Printf("Tree elements:       %v\n", act)
+		fmt.Printf("Original elements:   %v\n", exp)
+		t.Errorf("Tree deletion is messed up")
+	}
+	bf := tr.ListBalanceFactors()
+	if min, max, _ := MinMax(bf); min <= -2 || max >= 2 {
+		t.Errorf("Tree is not balanced")
 	}
 }
 

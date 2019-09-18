@@ -98,7 +98,7 @@ func relinkParent(n *node, parent *node, newChild *node) *node {
 func (t *node) Insert(key int, data interface{}) (*node, error) {
 	var err error
 	if t == nil {
-		return &node{key, nil, nil, data, 0}, nil
+		return &node{key, nil, nil, data, 1}, nil
 	}
 	if key == t.key {
 		return t, errors.New("duplicate key")
@@ -144,26 +144,21 @@ func (t *node) Delete(key int) (*node, error) {
 		}
 		relinkParent(n, parent, nil)
 	case n.left != nil && n.right != nil:
-		switch {
-		case n.key > parent.key:
-			r, p := n.findMax(n.left)
-			relinkParent(r, p, r.left)
-			r.left = n.left
-			r.right = n.right
+		r, p := n.findMin(n.right)
+		relinkParent(r, p, r.right)
+		r.left = n.left
+		r.right = n.right
+		if parent != nil {
 			relinkParent(n, parent, r)
-		case n.key < parent.key:
-			r, p := n.findMin(n.right)
-			relinkParent(r, p, r.right)
-			r.left = n.left
-			r.right = n.right
-			relinkParent(n, parent, r)
+		} else {
+			return r.balance(), nil
 		}
 	case n.left != nil:
 		relinkParent(n, parent, n.left)
 	case n.right != nil:
 		relinkParent(n, parent, n.right)
 	}
-	return t, nil
+	return t.balance(), nil
 }
 
 func (t *node) findMin(s *node) (*node, *node) {
@@ -208,6 +203,15 @@ func (t *node) List() []int {
 	var keys []int
 	fn := func(t *node) {
 		keys = append(keys, t.key)
+	}
+	t.traverse(fn)
+	return keys
+}
+
+func (t *node) ListBalanceFactors() []int {
+	var keys []int
+	fn := func(t *node) {
+		keys = append(keys, t.getBalanceFactor())
 	}
 	t.traverse(fn)
 	return keys
