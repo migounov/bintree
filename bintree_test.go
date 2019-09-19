@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strconv"
 	"testing"
+	"time"
 )
 
 type UserData struct {
@@ -18,8 +19,10 @@ type UserData struct {
 
 func generateSlice(n int) []int {
 	s := make([]int, 0, n)
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
 	for i := 0; i < n; i++ {
-		s = append(s, rand.Intn(100))
+		s = append(s, r1.Intn(100))
 	}
 	return s
 }
@@ -256,7 +259,8 @@ func TestDeleteLeftNodeWithTwoChildren(t *testing.T) {
 }
 
 func TestDeleteRandomNode(t *testing.T) {
-	s := generateSlice(1000)
+	// s := generateSlice(10)
+	s := []int{32, 8, 28, 87, 43, 6, 67, 74, 71, 70}
 	tr, exp := createTree(s)
 	key := exp[rand.Intn(len(exp))]
 	exp = removeFromSlice(exp, key)
