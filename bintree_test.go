@@ -3,7 +3,6 @@ package bintree
 import (
 	"errors"
 	"fmt"
-	"log"
 	"math/rand"
 	"reflect"
 	"sort"
@@ -148,10 +147,7 @@ func TestUpdate(t *testing.T) {
 func TestDeleteLoneRoot(t *testing.T) {
 	s := []int{1}
 	tr, _ := createTree(s)
-	tr, err := tr.Delete(1)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	tr = tr.Delete(1)
 	if tr != nil {
 		t.Errorf("The tree is not empty")
 	}
@@ -160,10 +156,7 @@ func TestDeleteLoneRoot(t *testing.T) {
 func TestDeleteRoot(t *testing.T) {
 	s := []int{2, 1, 3}
 	tr, _ := createTree(s)
-	tr, err := tr.Delete(2)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	tr = tr.Delete(2)
 	exp := []int{1, 3}
 	act := tr.List()
 	if !reflect.DeepEqual(act, exp) {
@@ -175,10 +168,7 @@ func TestDeleteRoot(t *testing.T) {
 func TestDeleteRightLeaf(t *testing.T) {
 	s := []int{1, 2}
 	tr, _ := createTree(s)
-	tr, err := tr.Delete(2)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	tr = tr.Delete(2)
 	exp := []int{1}
 	act := tr.List()
 	if !reflect.DeepEqual(act, exp) {
@@ -190,10 +180,7 @@ func TestDeleteRightLeaf(t *testing.T) {
 func TestDeleteLeftLeaf(t *testing.T) {
 	s := []int{2, 1}
 	tr, _ := createTree(s)
-	tr, err := tr.Delete(1)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	tr = tr.Delete(1)
 	exp := []int{2}
 	act := tr.List()
 	if !reflect.DeepEqual(act, exp) {
@@ -205,10 +192,7 @@ func TestDeleteLeftLeaf(t *testing.T) {
 func TestDeleteRightNodeWithOneChild(t *testing.T) {
 	s := []int{2, 1, 3, 4}
 	tr, _ := createTree(s)
-	tr, err := tr.Delete(3)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	tr = tr.Delete(3)
 	exp := []int{1, 2, 4}
 	act := tr.List()
 	if !reflect.DeepEqual(act, exp) {
@@ -220,10 +204,7 @@ func TestDeleteRightNodeWithOneChild(t *testing.T) {
 func TestDeleteLeftNodeWithOneChild(t *testing.T) {
 	s := []int{3, 2, 1, 4}
 	tr, _ := createTree(s)
-	tr, err := tr.Delete(2)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	tr = tr.Delete(2)
 	exp := []int{1, 3, 4}
 	act := tr.List()
 	if !reflect.DeepEqual(act, exp) {
@@ -235,10 +216,7 @@ func TestDeleteLeftNodeWithOneChild(t *testing.T) {
 func TestDeleteRightNodeWithTwoChildren(t *testing.T) {
 	s := []int{3, 2, 7, 1, 8, 5, 6, 4}
 	tr, _ := createTree(s)
-	tr, err := tr.Delete(7)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	tr = tr.Delete(7)
 	exp := []int{1, 2, 3, 4, 5, 6, 8}
 	act := tr.List()
 	if !reflect.DeepEqual(act, exp) {
@@ -250,10 +228,7 @@ func TestDeleteRightNodeWithTwoChildren(t *testing.T) {
 func TestDeleteLeftNodeWithTwoChildren(t *testing.T) {
 	s := []int{6, 7, 4, 8, 5, 2, 1, 3}
 	tr, _ := createTree(s)
-	tr, err := tr.Delete(4)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
+	tr = tr.Delete(4)
 	exp := []int{1, 2, 3, 5, 6, 7, 8}
 	act := tr.List()
 	if !reflect.DeepEqual(act, exp) {
@@ -268,10 +243,7 @@ func TestDeleteRandomNode(t *testing.T) {
 	key := exp[randInt(len(exp))]
 	exp = removeFromSlice(exp, key)
 	sort.Ints(exp)
-	tr, err := tr.Delete(key)
-	if err != nil {
-		log.Fatal(err)
-	}
+	tr = tr.Delete(key)
 	act := tr.List()
 	if !reflect.DeepEqual(act, exp) {
 		fmt.Printf("Tree elements:       %v\n", act)

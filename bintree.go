@@ -84,16 +84,6 @@ func (t *node) search(key int) (*node, *node) {
 	return nil, nil
 }
 
-func relinkParent(n *node, parent *node, newChild *node) *node {
-	switch {
-	case n.key < parent.key:
-		parent.left = newChild
-	case n.key > parent.key:
-		parent.right = newChild
-	}
-	return parent
-}
-
 func (t *node) Insert(key int, data interface{}) (*node, error) {
 	var err error
 	if t == nil {
@@ -129,65 +119,56 @@ func (t *node) Update(key int, u Updater) error {
 	return err
 }
 
-func (t *node) Delete(key int) (*node, error) {
-	n, parent := t.search(key)
-
-	if n == nil {
-		return nil, errors.New("key not found")
-	}
-
+func (t *node) Delete(key int) *node {
 	switch {
-	case n.left == nil && n.right == nil:
-		if parent == nil {
-			return nil, nil
+	case key < t.key:
+		t.left = t.left.Delete(key)
+	case key > t.key:
+		t.right = t.right.Delete(key)
+	case key == t.key:
+		l := t.left
+		r := t.right
+		if r == nil {
+			return l
 		}
-		relinkParent(n, parent, nil)
-	case n.left != nil && n.right != nil:
-		r, p := n.findMin(n.right)
-		relinkParent(r, p, r.right)
-		r.left = n.left
-		r.right = n.right
-		if parent != nil {
-			relinkParent(n, parent, r.balance())
-		} else {
-			return r.balance(), nil
-		}
-	case n.left != nil:
-		relinkParent(n, parent, n.left)
-	case n.right != nil:
-		relinkParent(n, parent, n.right)
+		min := r.findMin()
+		min.right = r.deleteMin()
+		min.left = l
+		return min.balance()
 	}
-	return t.balance(), nil
+	return t.balance()
 }
 
-func (t *node) findMin(s *node) (*node, *node) {
-	var n *node
-	parent := t
-	for n = s; n != nil && n.left != nil; {
-		parent = n
-		n = n.left
+func (t *node) findMin() *node {
+	if t.left != nil {
+		return t.left.findMin()
+	} else {
+		return t
 	}
-	return n, parent
+}
+
+func (t *node) deleteMin() *node {
+	if t.left == nil {
+		return t.right
+	}
+	t.left = t.left.deleteMin()
+	return t.balance()
 }
 
 func (t *node) Min() int {
-	min, _ := t.findMin(t.left)
-	return min.key
+	return t.findMin().key
 }
 
-func (t *node) findMax(s *node) (*node, *node) {
-	var n *node
-	parent := t
-	for n = t; n != nil && n.right != nil; {
-		parent = n
-		n = n.right
+func (t *node) findMax() *node {
+	if t.right != nil {
+		return t.right.findMax()
+	} else {
+		return t
 	}
-	return n, parent
 }
 
 func (t *node) Max() int {
-	max, _ := t.findMax(t.right)
-	return max.key
+	return t.findMax().key
 }
 
 func (t *node) traverse(fn func(t *node)) {
