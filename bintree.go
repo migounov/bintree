@@ -67,21 +67,18 @@ func (t *node) rotateRight() *node {
 	return z
 }
 
-func (t *node) search(key int) (*node, *node) {
-	var parent *node
+func (t *node) search(key int) *node {
 	for n := t; n != nil; {
 		switch {
 		case key == n.key:
-			return n, parent
+			return n
 		case key < n.key:
-			parent = n
 			n = n.left
 		case key > n.key:
-			parent = n
 			n = n.right
 		}
 	}
-	return nil, nil
+	return nil
 }
 
 func (t *node) Insert(key int, data interface{}) (*node, error) {
@@ -100,7 +97,7 @@ func (t *node) Insert(key int, data interface{}) (*node, error) {
 }
 
 func (t *node) Get(key int) (interface{}, error) {
-	n, _ := t.search(key)
+	n := t.search(key)
 	if n == nil {
 		return nil, errors.New("key not found")
 	}
@@ -108,7 +105,7 @@ func (t *node) Get(key int) (interface{}, error) {
 }
 
 func (t *node) Update(key int, u Updater) error {
-	n, _ := t.search(key)
+	n := t.search(key)
 	if n == nil {
 		return errors.New("key not found")
 	}
