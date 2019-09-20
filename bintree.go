@@ -6,7 +6,7 @@ type node struct {
 	key         int
 	left, right *node
 	data        interface{}
-	height		int
+	height      int
 }
 
 type Updater func(data interface{}) (interface{}, error)
@@ -19,7 +19,7 @@ func (t *node) getHeight() int {
 	}
 }
 
-func (t *node) calcHeight() *node {
+func (t *node) setHeight() {
 	hl := t.left.getHeight()
 	hr := t.right.getHeight()
 	if hl > hr {
@@ -27,7 +27,6 @@ func (t *node) calcHeight() *node {
 	} else {
 		t.height = hr + 1
 	}
-	return t
 }
 
 func (t *node) getBalanceFactor() int {
@@ -35,7 +34,7 @@ func (t *node) getBalanceFactor() int {
 }
 
 func (t *node) balance() *node {
-	t.calcHeight()
+	t.setHeight()
 	if t.getBalanceFactor() == 2 {
 		if t.right.getBalanceFactor() < 0 {
 			t.right = t.right.rotateRight()
@@ -54,8 +53,8 @@ func (t *node) rotateLeft() *node {
 	z := t.right
 	t.right = z.left
 	z.left = t
-	t.calcHeight()
-	z.calcHeight()
+	t.setHeight()
+	z.setHeight()
 	return z
 }
 
@@ -63,8 +62,8 @@ func (t *node) rotateRight() *node {
 	z := t.left
 	t.left = z.right
 	z.right = t
-	t.calcHeight()
-	z.calcHeight()
+	t.setHeight()
+	z.setHeight()
 	return z
 }
 
@@ -149,7 +148,7 @@ func (t *node) Delete(key int) (*node, error) {
 		r.left = n.left
 		r.right = n.right
 		if parent != nil {
-			relinkParent(n, parent, r)
+			relinkParent(n, parent, r.balance())
 		} else {
 			return r.balance(), nil
 		}

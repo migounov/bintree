@@ -259,8 +259,7 @@ func TestDeleteLeftNodeWithTwoChildren(t *testing.T) {
 }
 
 func TestDeleteRandomNode(t *testing.T) {
-	// s := generateSlice(10)
-	s := []int{32, 8, 28, 87, 43, 6, 67, 74, 71, 70}
+	s := generateSlice(100)
 	tr, exp := createTree(s)
 	key := exp[rand.Intn(len(exp))]
 	exp = removeFromSlice(exp, key)
