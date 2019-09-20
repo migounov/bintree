@@ -129,7 +129,7 @@ func (t *node) Delete(key int) *node {
 			return l
 		}
 		min := r.findMin()
-		min.right = r.deleteMin()
+		min.right = r.Delete(min.key)
 		min.left = l
 		return min.balance()
 	}
@@ -142,14 +142,6 @@ func (t *node) findMin() *node {
 	} else {
 		return t
 	}
-}
-
-func (t *node) deleteMin() *node {
-	if t.left == nil {
-		return t.right
-	}
-	t.left = t.left.deleteMin()
-	return t.balance()
 }
 
 func (t *node) Min() int {
