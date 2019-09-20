@@ -17,12 +17,16 @@ type UserData struct {
 	email string
 }
 
-func generateSlice(n int) []int {
-	s := make([]int, 0, n)
+func randInt(n int) int {
 	s1 := rand.NewSource(time.Now().UnixNano())
 	r1 := rand.New(s1)
+	return r1.Intn(n)
+}
+
+func generateSlice(n int) []int {
+	s := make([]int, 0, n)
 	for i := 0; i < n; i++ {
-		s = append(s, r1.Intn(100))
+		s = append(s, randInt(100))
 	}
 	return s
 }
@@ -72,7 +76,7 @@ func MinMax(s []int) (int, int, error) {
 }
 
 func TestInsert(t *testing.T) {
-	s := generateSlice(10)
+	s := generateSlice(100)
 	tr, exp := createTree(s)
 	sort.Ints(exp)
 	act := tr.List()
@@ -90,7 +94,7 @@ func TestInsert(t *testing.T) {
 func TestGet(t *testing.T) {
 	s := generateSlice(100)
 	tr, exp := createTree(s)
-	key := exp[rand.Intn(len(exp))]
+	key := exp[randInt(len(exp))]
 	n, err := tr.Get(key)
 	if err != nil {
 		t.Errorf(err.Error())
@@ -117,7 +121,7 @@ func TestUpdate(t *testing.T) {
 
 	s := generateSlice(100)
 	tr, exp := createTree(s)
-	key := exp[rand.Intn(len(exp))]
+	key := exp[randInt(len(exp))]
 	updatedUser.name = "updated name"
 	updatedUser.email = "updated email"
 	u = func(data interface{}) (interface{}, error) {
@@ -261,7 +265,7 @@ func TestDeleteLeftNodeWithTwoChildren(t *testing.T) {
 func TestDeleteRandomNode(t *testing.T) {
 	s := generateSlice(100)
 	tr, exp := createTree(s)
-	key := exp[rand.Intn(len(exp))]
+	key := exp[randInt(len(exp))]
 	exp = removeFromSlice(exp, key)
 	sort.Ints(exp)
 	tr, err := tr.Delete(key)
